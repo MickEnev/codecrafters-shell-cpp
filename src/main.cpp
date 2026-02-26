@@ -34,7 +34,7 @@ int main() {
         if (std::find(validCommands.begin(), validCommands.end(), command) != validCommands.end()) {
           std::cout << command << " is a shell builtin" << std::endl;
         } else {
-          std::cout << command << ": " << "command not found" << std::endl;
+          std::cout << command << ": " << "not found" << std::endl;
         }
       }
     }

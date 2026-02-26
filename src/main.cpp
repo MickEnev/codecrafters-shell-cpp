@@ -41,7 +41,8 @@ int main() {
           std::cout << command << " is a shell builtin" << std::endl;
         } else {
           const char* path_env = std::getenv("PATH");
-            for (int i = 0; i < strlen(path_env); i++) {
+          int i = 0;
+            while (i < strlen(path_env)) {
               std::string curDir = "";
               int slashIndex = 0;
 
@@ -50,7 +51,8 @@ int main() {
                 if (path_env[i] == '/') {
                   slashIndex = i;
                 }
-                
+                i++;
+              }
                 std::string file = curDir.substr(slashIndex);
                 // Check if file == command 
                 fs::file_status s = fs::status(file);
@@ -64,9 +66,9 @@ int main() {
                 } else {
                   continue;
                 }
-              }
               
-              std::cout << path_env[i] << std::endl;
+              
+              i++;
             }
           std::cout << command << ": " << "not found" << std::endl;
         }

@@ -31,11 +31,11 @@ int main() {
       if (input == "type") {
         std::string command;
         std::getline(std::cin, command);
-        command = command.substr(1);
+        //command = command.substr(1);
         if (std::find(validCommands.begin(), validCommands.end(), command) == validCommands.end()) {
           std::cout << command << " is a shell command" << std::endl;
         } else {
-          std::cout << command << " :" << "command not found" << std::endl;
+          std::cout << command << ": " << "command not found" << std::endl;
         }
       }
     }

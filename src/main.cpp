@@ -42,6 +42,24 @@ int main() {
         } else {
           const char* path_env = std::getenv("PATH");
             for (int i = 0; i < strlen(path_env); i++) {
+              std::string curDir = "";
+              int slashIndex = 0;
+              while (path_env[i] != ':') {
+                curDir += path_env[i];
+                if (path_env[i] == '/') {
+                  slashIndex = i;
+                }
+                
+                std::string file = curDir.substr(slashIndex);
+                // Check if file == command 
+                if (file == command && has_execute_permission(file)) {
+                  std::cout << command << " is " << curDir << std::endl;
+                } else {
+                  continue;
+                }
+
+              }
+              
               std::cout << path_env[i] << std::endl;
             }
           std::cout << command << ": " << "not found" << std::endl;
@@ -49,5 +67,25 @@ int main() {
       }
     }
   }
+  
 
+}
+
+bool has_execute_permission(const std::string& filename) {
+    std::error_code ec;
+    fs::file_status s = fs::status(filename, ec);
+
+    if (ec) {
+        std::cerr << "Error getting file status: " << ec.message() << std::endl;
+        return false;
+    }
+
+    fs::perms p = s.permissions();
+
+    if (((p & fs::perms::owner_exec) != fs::perms::none) ||
+        ((p & fs::perms::group_exec) != fs::perms::none) ||
+        ((p & fs::perms::others_exec) != fs::perms::none)) {
+        return true;
+    }
+    return false;
 }

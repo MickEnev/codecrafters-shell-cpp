@@ -40,7 +40,7 @@ int main() {
           std::cout << command << " is a shell builtin" << std::endl;
         } else {
           const char* path_env = std::getenv("PATH");
-            for (int i = 0; i < std::strlen(path_env); i++) {
+            for (size_t i = 0; i < std::strlen(path_env); i++) {
               std::cout << path_env[i] << std::endl;
             }
           std::cout << command << ": " << "not found" << std::endl;

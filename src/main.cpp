@@ -52,12 +52,16 @@ int main() {
                 
                 std::string file = curDir.substr(slashIndex);
                 // Check if file == command 
-                if (file == command && has_execute_permission(file)) {
+                fs::file_status s = fs::status(file);
+                fs::perms p = s.permissions();
+
+                if (file == command && ((p & fs::perms::owner_exec) != fs::perms::none) ||
+                    ((p & fs::perms::group_exec) != fs::perms::none) ||
+                    ((p & fs::perms::others_exec) != fs::perms::none)) {
                   std::cout << command << " is " << curDir << std::endl;
                 } else {
                   continue;
                 }
-
               }
               
               std::cout << path_env[i] << std::endl;
@@ -69,23 +73,4 @@ int main() {
   }
   
 
-}
-
-bool has_execute_permission(const std::string& filename) {
-    std::error_code ec;
-    fs::file_status s = fs::status(filename, ec);
-
-    if (ec) {
-        std::cerr << "Error getting file status: " << ec.message() << std::endl;
-        return false;
-    }
-
-    fs::perms p = s.permissions();
-
-    if (((p & fs::perms::owner_exec) != fs::perms::none) ||
-        ((p & fs::perms::group_exec) != fs::perms::none) ||
-        ((p & fs::perms::others_exec) != fs::perms::none)) {
-        return true;
-    }
-    return false;
 }

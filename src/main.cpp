@@ -13,6 +13,6 @@ int main() {
   std::cin >> input;
 
   if (input.size() > 0) {
-    std::cout << input << ":" << "command not found" << std::endl;
+    std::cout << input << ": " << "command not found" << std::endl;
   }
 }

@@ -13,8 +13,10 @@ int main() {
   
     std::cin >> input;
   
-    if (input.size() > 0) {
+    if (input != "exit") {
       std::cout << input << ": " << "command not found" << std::endl;
+    } else {
+      break;
     }
   }
 

@@ -26,7 +26,7 @@ int main() {
       if (input == "echo") {
         std::string echoSentence;
         std::getline(std::cin, echoSentence);
-        std::cout << echoSentence << std::endl;
+        std::cout << echoSentence.substr(1) << std::endl;
       }
     }
   }

@@ -8,7 +8,7 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  std::vector<std::string> validCommands = {"exit", "echo"};
+  std::vector<std::string> validCommands = {"exit", "echo", "type"};
 
 
   while (true) {
@@ -27,6 +27,16 @@ int main() {
         std::string echoSentence;
         std::getline(std::cin, echoSentence);
         std::cout << echoSentence.substr(1) << std::endl;
+      }
+      if (input == "type") {
+        std::string command;
+        std::getline(std::cin, command);
+        command = command.substr(1);
+        if (std::find(validCommands.begin(), validCommands.end(), command) == validCommands.end()) {
+          std::cout << command << " is a shell command" << std::endl;
+        } else {
+          std::cout << command << " :" << "command not found" << std::endl;
+        }
       }
     }
   }

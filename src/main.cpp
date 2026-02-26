@@ -44,6 +44,7 @@ int main() {
             for (int i = 0; i < strlen(path_env); i++) {
               std::string curDir = "";
               int slashIndex = 0;
+
               while (path_env[i] != ':') {
                 curDir += path_env[i];
                 if (path_env[i] == '/') {
@@ -59,6 +60,7 @@ int main() {
                     ((p & fs::perms::group_exec) != fs::perms::none) ||
                     ((p & fs::perms::others_exec) != fs::perms::none)) {
                   std::cout << command << " is " << curDir << std::endl;
+                  break;
                 } else {
                   continue;
                 }

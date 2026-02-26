@@ -24,7 +24,9 @@ int main() {
         break;
       }
       if (input == "echo") {
-        std::cout << input << std::endl;
+        std::string echoSentence;
+        std::getline(std::cin, echoSentence);
+        std::cout << echoSentence << std::endl;
       }
     }
   }

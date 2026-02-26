@@ -24,7 +24,7 @@ int main() {
         break;
       }
       if (input == "echo") {
-        std::cout << input.substr(4, input.size() - 5) << std::endl;
+        std::cout << input.substr(4) << std::endl;
       }
     }
   }

@@ -6,6 +6,8 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
+  std::vector<std::string> validCommands = {"exit", "echo"};
+
 
   while (true) {
     std::string input = "";
@@ -13,10 +15,15 @@ int main() {
   
     std::cin >> input;
   
-    if (input != "exit") {
+    if (std::find(validCommands.begin(), validCommands.end(), input) == validCommands.end()) {
       std::cout << input << ": " << "command not found" << std::endl;
     } else {
-      break;
+      if (input == "exit") {
+        break;
+      }
+      if (input == "echo") {
+        std::cout << input << std::endl;
+      }
     }
   }
 

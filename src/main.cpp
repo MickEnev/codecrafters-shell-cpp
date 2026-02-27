@@ -64,8 +64,8 @@ int main() {
             if (fs::exists(file) && access(file.c_str(), X_OK) == 0) {
                 pid_t pid = fork();
                 if (pid == 0) {
+                  found = true;
                     execv(file.c_str(), argv.data());
-                    found = true;
                     exit(1);
                 } else if (pid > 0) {
                     int status;

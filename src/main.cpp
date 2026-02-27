@@ -39,6 +39,7 @@ int main() {
           args.push_back(temp);
       }
       std::vector<char*> argv;
+      argv.push_back(const_cast<char*>(input.c_str()));
 
       for (auto& s : args) {
           argv.push_back(const_cast<char*>(s.c_str()));

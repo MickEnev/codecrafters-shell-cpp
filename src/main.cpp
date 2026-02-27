@@ -55,8 +55,6 @@ int main() {
           }
 
           std::string command = argv[0];
-          std::string arg1 = argv[1];
-          std::string arg2 = argv[2];
 
           for (const auto& p : parts) {
             std::string file = p + "/" + command;

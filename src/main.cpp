@@ -59,13 +59,19 @@ int main() {
           for (const auto& p : parts) {
             std::string file = p + "/" + command;
             if (fs::exists(file) && access(file.c_str(), X_OK) == 0) {
-                execv(file.c_str(), argv.data());
+                pid_t pid = fork();
+                if (pid == 0) {
+                    execv(file.c_str(), argv.data());
+                    exit(1);
+                } else if (pid > 0) {
+                    int status;
+                    waitpid(pid, &status, 0);
+                }
             } else {
               std::cout << input << ": " << "command not found" << std::endl;
+              break;
             }
           }
-
-
     } else {
       if (input == "exit") {
         break;

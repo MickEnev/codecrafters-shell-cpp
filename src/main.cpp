@@ -39,6 +39,7 @@ int main() {
       if (input == "type") {
         std::string command;
         std::cin >> command;
+        bool found = false;
         if (std::find(validCommands.begin(), validCommands.end(), command) != validCommands.end()) {
           std::cout << command << " is a shell builtin" << std::endl;
         } else {
@@ -56,12 +57,13 @@ int main() {
             std::string file = p + "/" + command;
             if (fs::exists(file) && access(file.c_str(), X_OK) == 0) {
                 std::cout << command << " is " << file << std::endl;
+                found = true;
                 break;
             }
           }
-
-
-          std::cout << command << ": " << "not found" << std::endl;
+          if (!found) {
+            std::cout << command << ": " << "not found" << std::endl;
+          }
         }
       }
     }

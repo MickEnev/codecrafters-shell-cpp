@@ -71,6 +71,7 @@ int main() {
                 }
             }
           }
+          std::cout << input << ": " << "command not found" << std::endl;
     } else {
       if (input == "exit") {
         break;

@@ -26,8 +26,9 @@ int main() {
     std::cout << "$ ";
   
     std::cin >> input;
-  
+    
     if (std::find(validCommands.begin(), validCommands.end(), input) == validCommands.end()) {
+      bool found = false;
       std::string i;
       std::getline(std::cin, i);
 
@@ -64,6 +65,7 @@ int main() {
                 pid_t pid = fork();
                 if (pid == 0) {
                     execv(file.c_str(), argv.data());
+                    found = true;
                     exit(1);
                 } else if (pid > 0) {
                     int status;
@@ -71,7 +73,9 @@ int main() {
                 }
             }
           }
-          std::cout << input << ": " << "command not found" << std::endl;
+          if (!found) {
+            std::cout << input << ": " << "command not found" << std::endl;
+          }
     } else {
       if (input == "exit") {
         break;

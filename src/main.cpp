@@ -28,10 +28,10 @@ int main() {
     std::cin >> input;
   
     if (std::find(validCommands.begin(), validCommands.end(), input) == validCommands.end()) {
-      std::string input;
-      std::getline(std::cin, input);
+      std::string i;
+      std::getline(std::cin, i);
 
-      std::stringstream iss(input);
+      std::stringstream iss(i);
       std::vector<std::string> args;
       std::string temp;
 
@@ -68,9 +68,6 @@ int main() {
                     int status;
                     waitpid(pid, &status, 0);
                 }
-            } else {
-              std::cout << input << ": " << "command not found" << std::endl;
-              break;
             }
           }
     } else {

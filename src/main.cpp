@@ -56,6 +56,7 @@ int main() {
             std::string file = p + "/" + command;
             if (fs::exists(file) && access(file.c_str(), X_OK) == 0) {
                 std::cout << command << " is " << file << std::endl;
+                break;
             }
           }
 

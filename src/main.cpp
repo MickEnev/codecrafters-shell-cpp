@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <filesystem>
 #include <cstring>
+#include <sstream>
+#include <unistd.h> 
 
 namespace fs = std::filesystem;
 
@@ -41,35 +43,23 @@ int main() {
           std::cout << command << " is a shell builtin" << std::endl;
         } else {
           const char* path_env = std::getenv("PATH");
-          int i = 0;
-            while (i < strlen(path_env)) {
-              std::string curDir = "";
-              int slashIndex = 0;
+          // parse each directory 
+          std::vector<std::string> parts;
+          std::stringstream ss(path_env);
+          std::string token;
 
-              while (path_env[i] != ':') {
-                curDir += path_env[i];
-                if (path_env[i] == '/') {
-                  slashIndex = i;
-                }
-                i++;
-              }
-                std::string file = curDir.substr(slashIndex);
-                // Check if file == command 
-                fs::file_status s = fs::status(file);
-                fs::perms p = s.permissions();
+          while (std::getline(ss, token, ':')) {
+              parts.push_back(token);
+          }
 
-                if (file == command && ((p & fs::perms::owner_exec) != fs::perms::none) ||
-                    ((p & fs::perms::group_exec) != fs::perms::none) ||
-                    ((p & fs::perms::others_exec) != fs::perms::none)) {
-                  std::cout << command << " is " << curDir << std::endl;
-                  break;
-                } else {
-                  continue;
-                }
-              
-              
-              i++;
+          for (const auto& p : parts) {
+            std::string file = p + "/" + command;
+            if (fs::exists(file) && access(file.c_str(), X_OK) == 0) {
+                std::cout << command << " is " << file << std::endl;
             }
+          }
+
+
           std::cout << command << ": " << "not found" << std::endl;
         }
       }

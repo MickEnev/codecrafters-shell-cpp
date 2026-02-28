@@ -32,9 +32,29 @@ std::vector<std::string> parseArgs(const std::string& line) {
   std::vector<std::string> args;
   std::string temp;
 
-  while (iss >> temp) {
-      args.push_back(temp);
+  size_t firstQuote = line.find('\'');
+  size_t lastQuote = line.rfind('\'');
+
+  std::string literal = "";
+
+  if (firstQuote != std::string::npos && lastQuote != firstQuote) {
+    literal = line.substr(
+        firstQuote + 1,
+        lastQuote - firstQuote - 1
+    );
   }
+
+  while (iss >> temp) {
+    if (temp[0] == '\'') {
+      while (iss >> temp && temp[temp.size() - 1] != '\'') {
+        continue;
+      }
+      args.push_back(literal);
+      continue;
+    }
+    args.push_back(temp);
+  }
+
   return args;
 }
 

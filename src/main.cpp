@@ -28,33 +28,42 @@ std::vector<std::string> getPathDirs() {
 }
 
 std::vector<std::string> parseArgs(const std::string& line) {
-  std::stringstream iss(line);
+  enum class ParseState {
+      NORMAL,
+      IN_SINGLE_QUOTE
+  };
+
+  ParseState state = ParseState::NORMAL;
+
   std::vector<std::string> args;
-  std::string temp;
+  std::string current;
 
-  size_t firstQuote = line.find('\'');
-  size_t lastQuote = line.rfind('\'');
-
-  std::string literal = "";
-
-  if (firstQuote != std::string::npos && lastQuote != firstQuote) {
-    literal = line.substr(
-        firstQuote + 1,
-        lastQuote - firstQuote - 1
-    );
-  }
-
-  while (iss >> temp) {
-    if (temp[0] == '\'') {
-      while (iss >> temp && temp[temp.size() - 1] != '\'') {
-        continue;
+  for (char c : line) {
+      if (state == ParseState::NORMAL) {
+          if (c == '\'') {
+              state = ParseState::IN_SINGLE_QUOTE;
+              continue;
+          }
+          if (std::isspace(c)) {
+              if (!current.empty()) {
+                  args.push_back(current);
+                  current.clear();
+              }
+              continue;
+          }
+          current.push_back(c);
       }
-      args.push_back(literal);
-      continue;
-    }
-    args.push_back(temp);
+      else if (state == ParseState::IN_SINGLE_QUOTE) {
+          if (c == '\'') {
+              state = ParseState::NORMAL;
+              continue;
+          }
+          current.push_back(c);
+      }
   }
-
+  if (!current.empty()) {
+      args.push_back(current);
+  }
   return args;
 }
 

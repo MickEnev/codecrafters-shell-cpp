@@ -30,7 +30,8 @@ std::vector<std::string> getPathDirs() {
 std::vector<std::string> parseArgs(const std::string& line) {
   enum class ParseState {
       NORMAL,
-      IN_SINGLE_QUOTE
+      IN_SINGLE_QUOTE,
+      IN_DOUBLE_QUOTE
   };
 
   ParseState state = ParseState::NORMAL;
@@ -44,6 +45,10 @@ std::vector<std::string> parseArgs(const std::string& line) {
               state = ParseState::IN_SINGLE_QUOTE;
               continue;
           }
+          if (c == '"') {
+            state = ParseState::IN_DOUBLE_QUOTE;
+            continue;
+          }
           if (std::isspace(c)) {
               if (!current.empty()) {
                   args.push_back(current);
@@ -52,11 +57,16 @@ std::vector<std::string> parseArgs(const std::string& line) {
               continue;
           }
           current.push_back(c);
-      }
-      else if (state == ParseState::IN_SINGLE_QUOTE) {
+      } else if (state == ParseState::IN_SINGLE_QUOTE) {
           if (c == '\'') {
               state = ParseState::NORMAL;
               continue;
+          }
+          current.push_back(c);
+      } else if (state == ParseState::IN_DOUBLE_QUOTE) {
+          if (c == '"') {
+            state = ParseState::NORMAL;
+            continue;
           }
           current.push_back(c);
       }

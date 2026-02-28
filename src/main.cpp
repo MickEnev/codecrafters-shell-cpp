@@ -50,7 +50,7 @@ std::vector<std::string> parseArgs(const std::string& line) {
             state = ParseState::IN_DOUBLE_QUOTE;
             continue;
           }
-          if (state != ParseState::IN_DOUBLE_QUOTE || state != ParseState::IN_SINGLE_QUOTE and c == '\\') {
+          if (state != ParseState::IN_DOUBLE_QUOTE && state != ParseState::IN_SINGLE_QUOTE && c == '\\') {
             state = ParseState::ESCAPE;
             continue; 
           }

@@ -107,7 +107,7 @@ void changeDirectory(const std::string& newDir) {
   try {
     fs::current_path(new_dir);
   } catch (fs::filesystem_error& e) {
-    std::cerr << new_dir << ": No such file or directory " << std::endl;
+    std::cerr << "cd: " << new_dir << ": No such file or directory " << std::endl;
   }
 }
 

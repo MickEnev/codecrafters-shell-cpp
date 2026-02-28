@@ -77,6 +77,7 @@ std::vector<std::string> parseArgs(const std::string& line) {
       } else if (state == ParseState::ESCAPE) {
         current.push_back(c);
         state = ParseState::NORMAL;
+        continue;
       }
   }
   if (!current.empty()) {

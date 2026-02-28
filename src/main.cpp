@@ -40,6 +40,8 @@ std::vector<std::string> parseArgs(const std::string& line) {
   std::vector<std::string> args;
   std::string current;
 
+  bool escaped = false;
+
   for (char c : line) {
       if (state == ParseState::NORMAL) {
           if (c == '\'') {
@@ -50,7 +52,7 @@ std::vector<std::string> parseArgs(const std::string& line) {
             state = ParseState::IN_DOUBLE_QUOTE;
             continue;
           }
-          if (state == ParseState::NORMAL && c == '\\') {
+          if (!escaped && state == ParseState::NORMAL && c == '\\') {
             state = ParseState::ESCAPE;
             continue; 
           }
@@ -68,6 +70,7 @@ std::vector<std::string> parseArgs(const std::string& line) {
               continue;
           }
           current.push_back(c);
+          escaped = false;
       } else if (state == ParseState::IN_DOUBLE_QUOTE) {
           if (c == '"') {
             state = ParseState::NORMAL;
@@ -78,9 +81,11 @@ std::vector<std::string> parseArgs(const std::string& line) {
             continue;
           }
           current.push_back(c);
+          escaped = false;
       } else if (state == ParseState::ESCAPE) {
         current.push_back(c);
         state = ParseState::NORMAL;
+        escaped = true;
         continue;
       }
   }

@@ -31,7 +31,8 @@ std::vector<std::string> parseArgs(const std::string& line) {
   enum class ParseState {
       NORMAL,
       IN_SINGLE_QUOTE,
-      IN_DOUBLE_QUOTE
+      IN_DOUBLE_QUOTE,
+      ESCAPE
   };
 
   ParseState state = ParseState::NORMAL;
@@ -48,6 +49,10 @@ std::vector<std::string> parseArgs(const std::string& line) {
           if (c == '"') {
             state = ParseState::IN_DOUBLE_QUOTE;
             continue;
+          }
+          if (state != ParseState::IN_DOUBLE_QUOTE || state != ParseState::IN_SINGLE_QUOTE and c == '\\') {
+            state = ParseState::ESCAPE;
+            continue; 
           }
           if (std::isspace(c)) {
               if (!current.empty()) {
@@ -69,6 +74,9 @@ std::vector<std::string> parseArgs(const std::string& line) {
             continue;
           }
           current.push_back(c);
+      } else if (state == ParseState::ESCAPE) {
+        current.push_back(c);
+        state = ParseState::NORMAL;
       }
   }
   if (!current.empty()) {

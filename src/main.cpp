@@ -10,6 +10,8 @@
 
 namespace fs = std::filesystem;
 
+std::vector<std::string> VALID_COMMANDS = {"exit", "echo", "type", "pwd"};
+
 std::vector<std::string> getPathDirs() {
   std::vector<std::string> parts;
 
@@ -101,13 +103,12 @@ void checkType(const std::string& command, const std::vector<std::string>& valid
 }
 
 bool builtin(std::string& command) {
-  std::vector<std::string> validCommands = {"exit", "echo", "type"};
-  return std::find(validCommands.begin(), validCommands.end(), command) != validCommands.end();
+  
+  return std::find(VALID_COMMANDS.begin(), VALID_COMMANDS.end(), command) != VALID_COMMANDS.end();
 }
 
 void runBuiltin(const std::vector<std::string>& args) {
   std::string command = args[0];
-  std::vector<std::string> validCommands = {"exit", "echo", "type"};
   if (command == "exit") {
     exit(0);
   }
@@ -119,7 +120,10 @@ void runBuiltin(const std::vector<std::string>& args) {
       std::cout << "type: missing argument\n";
       return;
     }   
-    checkType(args[1], validCommands);
+    checkType(args[1], VALID_COMMANDS);
+  }
+  if (command == "pwd") {
+    std::cout << fs::current_path() << std::endl;
   }
 }
 
@@ -133,8 +137,6 @@ int main() {
   std::cerr << std::unitbuf;
 
   fs::path curDir = fs::current_path();
-
-  
 
   while (true) {
     std::cout << "$ ";

@@ -123,7 +123,7 @@ void runBuiltin(const std::vector<std::string>& args) {
     checkType(args[1], VALID_COMMANDS);
   }
   if (command == "pwd") {
-    std::cout << fs::current_path() << std::endl;
+    std::cout << fs::current_path().c_str() << std::endl;
   }
 }
 

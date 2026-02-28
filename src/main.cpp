@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-std::vector<std::string> VALID_COMMANDS = {"exit", "echo", "type", "pwd"};
+std::vector<std::string> VALID_COMMANDS = {"exit", "echo", "type", "pwd", "cd"};
 
 std::vector<std::string> getPathDirs() {
   std::vector<std::string> parts;
@@ -102,6 +102,15 @@ void checkType(const std::string& command, const std::vector<std::string>& valid
   }
 }
 
+void changeDirectory(const std::string& newDir) {
+  fs::path new_dir = newDir;
+  try {
+    fs::current_path(new_dir);
+  } catch (fs::filesystem_error& e) {
+    std::cerr << new_dir << ": No such file or directory " << std::endl;
+  }
+}
+
 bool builtin(std::string& command) {
   
   return std::find(VALID_COMMANDS.begin(), VALID_COMMANDS.end(), command) != VALID_COMMANDS.end();
@@ -124,6 +133,9 @@ void runBuiltin(const std::vector<std::string>& args) {
   }
   if (command == "pwd") {
     std::cout << fs::current_path().c_str() << std::endl;
+  }
+  if (command == "cd") {
+    changeDirectory(args[1]);
   }
 }
 

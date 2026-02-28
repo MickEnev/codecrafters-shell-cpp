@@ -36,11 +36,11 @@ std::vector<std::string> parseArgs(const std::string& line) {
   };
 
   ParseState state = ParseState::NORMAL;
+  ParseState prevState = ParseState::NORMAL;
 
   std::vector<std::string> args;
   std::string current;
 
-  bool escaped = false;
 
   for (char c : line) {
       if (state == ParseState::NORMAL) {
@@ -52,7 +52,7 @@ std::vector<std::string> parseArgs(const std::string& line) {
             state = ParseState::IN_DOUBLE_QUOTE;
             continue;
           }
-          if (!escaped && state == ParseState::NORMAL && c == '\\') {
+          if (state == ParseState::NORMAL && c == '\\') {
             state = ParseState::ESCAPE;
             continue; 
           }
@@ -66,26 +66,26 @@ std::vector<std::string> parseArgs(const std::string& line) {
           current.push_back(c);
       } else if (state == ParseState::IN_SINGLE_QUOTE) {
           if (c == '\'') {
+              prevState = state;
               state = ParseState::NORMAL;
               continue;
           }
           current.push_back(c);
-          escaped = false;
       } else if (state == ParseState::IN_DOUBLE_QUOTE) {
           if (c == '"') {
+            prevState = state;
             state = ParseState::NORMAL;
             continue;
           }
           if (c == '\\') {
+            prevState = state;
             state = ParseState::ESCAPE;
             continue;
           }
           current.push_back(c);
-          escaped = false;
       } else if (state == ParseState::ESCAPE) {
         current.push_back(c);
-        state = ParseState::NORMAL;
-        escaped = true;
+        state = prevState;
         continue;
       }
   }

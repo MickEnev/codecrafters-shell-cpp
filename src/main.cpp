@@ -104,6 +104,10 @@ void checkType(const std::string& command, const std::vector<std::string>& valid
 
 void changeDirectory(const std::string& newDir) {
   fs::path new_dir = newDir;
+  if (newDir == "~") {
+    const char* path_env = std::getenv("HOME");
+    new_dir = path_env;
+  }
   try {
     fs::current_path(new_dir);
   } catch (fs::filesystem_error& e) {

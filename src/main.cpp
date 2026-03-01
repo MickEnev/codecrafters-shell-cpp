@@ -268,19 +268,34 @@ void runBuiltin(Command cmd) {
 }
 
 void runBuiltinWithRedirect(const Command& cmd) {
-    int saved_stderr = dup(STDERR_FILENO);
     int saved_stdout = dup(STDOUT_FILENO);
+    int saved_stderr = dup(STDERR_FILENO);
 
-    int fd = open(cmd.file.c_str(),
-                  O_WRONLY | O_CREAT | O_TRUNC,
-                  0644);
+    // redirect stdout
+    if (cmd.redirectOutput) {
+        int fd = open(cmd.file.c_str(),
+                      O_WRONLY | O_CREAT | O_TRUNC,
+                      0644);
 
-    if (fd < 0) {
-        perror(cmd.errorFile.c_str());
+        if (fd < 0) {
+            perror("open");
+        } else {
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
     }
 
-    dup2(fd, STDOUT_FILENO);
-    close(fd);
+    // redirect stderr
+    if (cmd.redirectError) {
+        int fd = open(cmd.errorFile.c_str(),
+                      O_WRONLY | O_CREAT | O_TRUNC,
+                      0644);
+
+        if (fd >= 0) {
+            dup2(fd, STDERR_FILENO);
+            close(fd);
+        }
+    }
 
     runBuiltin(cmd);
 

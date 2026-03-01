@@ -79,8 +79,11 @@ Command parseArgs(const std::string& line) {
               }
               continue;
           }
-          if ((c == '>' || c == '1>') && state == ParseState::NORMAL) {
+          if (c == '>' && state == ParseState::NORMAL) {
             if (!current.empty()) {
+                if (current[current.size() - 1] == '1') {
+                  current = current.substr(0, current.size() - 2);
+                }
                 cmd.args.push_back(current);
                 current.clear();
             }

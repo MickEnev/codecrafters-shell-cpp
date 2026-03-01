@@ -184,11 +184,6 @@ void checkCustomCommand(Command cmd) {
                           O_WRONLY | O_CREAT | O_TRUNC,
                           0644);
 
-            if (fd < 0) {
-                perror("open");
-                exit(1);
-            }
-
             dup2(fd, STDERR_FILENO);
             close(fd);
           }

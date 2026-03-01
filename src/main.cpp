@@ -271,7 +271,6 @@ void runBuiltin(Command cmd) {
 }
 
 void runBuiltinWithRedirect(const Command& cmd) {
-    int saved_stdout = dup(STDOUT_FILENO);
     int saved_stderr = dup(STDERR_FILENO);
     int saved_stdout = dup(STDOUT_FILENO);
 

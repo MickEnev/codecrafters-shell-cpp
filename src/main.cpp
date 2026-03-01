@@ -7,10 +7,18 @@
 #include <sstream>
 #include <unistd.h> 
 #include <sys/wait.h>
+#include <fstream>
+#include <fcntl.h>
 
 namespace fs = std::filesystem;
 
 std::vector<std::string> VALID_COMMANDS = {"exit", "echo", "type", "pwd", "cd"};
+
+struct Command {
+  std::vector<std::string> args;
+  bool redirectOutput = false;
+  std::string file;
+};
 
 std::vector<std::string> getPathDirs() {
   std::vector<std::string> parts;
@@ -27,7 +35,7 @@ std::vector<std::string> getPathDirs() {
   return parts;
 }
 
-std::vector<std::string> parseArgs(const std::string& line) {
+Command parseArgs(const std::string& line) {
   enum class ParseState {
       NORMAL,
       IN_SINGLE_QUOTE,
@@ -38,9 +46,11 @@ std::vector<std::string> parseArgs(const std::string& line) {
   ParseState state = ParseState::NORMAL;
   ParseState prevState = ParseState::NORMAL;
 
+  Command cmd;
+  bool fileOutput = false;
+
   std::vector<std::string> args;
   std::string current;
-
 
   for (char c : line) {
       if (state == ParseState::NORMAL) {
@@ -52,17 +62,32 @@ std::vector<std::string> parseArgs(const std::string& line) {
             state = ParseState::IN_DOUBLE_QUOTE;
             continue;
           }
-          if (state == ParseState::NORMAL && c == '\\') {
+          if (c == '\\') {
             state = ParseState::ESCAPE;
             continue; 
           }
           if (std::isspace(c)) {
               if (!current.empty()) {
-                  args.push_back(current);
-                  current.clear();
+                if (fileOutput) {
+                  cmd.file = current;
+                  cmd.redirectOutput = true;
+                  fileOutput = false;
+                } else {
+                  cmd.args.push_back(current);
+                }
+                current.clear();
               }
               continue;
           }
+          if (c == '>' && state == ParseState::NORMAL) {
+            if (!current.empty()) {
+                cmd.args.push_back(current);
+                current.clear();
+            }
+
+            fileOutput = true;
+            continue;
+        }
           current.push_back(c);
       } else if (state == ParseState::IN_SINGLE_QUOTE) {
           if (c == '\'') {
@@ -90,9 +115,14 @@ std::vector<std::string> parseArgs(const std::string& line) {
       }
   }
   if (!current.empty()) {
-      args.push_back(current);
+    if (fileOutput) {
+      cmd.file = current;
+      cmd.redirectOutput = true;
+    } else {
+      cmd.args.push_back(current);
+    }
   }
-  return args;
+  return cmd;
 }
 
 void echo(const std::vector<std::string>& args) {
@@ -103,16 +133,17 @@ void echo(const std::vector<std::string>& args) {
     std::cout << std::endl;
 }
 
-void checkCustomCommand(const std::vector<std::string>& args) {
+void checkCustomCommand(Command cmd) {
   bool found = false;
+
   // Convert args -> argv (execv format)
   std::vector<char*> argv;
-  for (const auto& s : args) {
+  for (const auto& s : cmd.args) {
       argv.push_back(const_cast<char*>(s.c_str()));
   }
   argv.push_back(nullptr);
 
-  std::string command = args[0];
+  std::string command = cmd.args[0];
 
   // parse each directory 
   std::vector<std::string> parts = getPathDirs();
@@ -122,6 +153,19 @@ void checkCustomCommand(const std::vector<std::string>& args) {
     if (fs::exists(file) && access(file.c_str(), X_OK) == 0) {
         pid_t pid = fork();
         if (pid == 0) {
+          if (cmd.redirectOutput) {
+              int fd = open(cmd.file.c_str(),
+                            O_WRONLY | O_CREAT | O_TRUNC,
+                            0644);
+
+              if (fd < 0) {
+                  perror("open");
+                  exit(1);
+              }
+
+              dup2(fd, STDOUT_FILENO);
+              close(fd);
+          }
           execv(file.c_str(), argv.data());
           exit(1);
         } else if (pid > 0) {
@@ -177,27 +221,49 @@ bool builtin(std::string& command) {
   return std::find(VALID_COMMANDS.begin(), VALID_COMMANDS.end(), command) != VALID_COMMANDS.end();
 }
 
-void runBuiltin(const std::vector<std::string>& args) {
-  std::string command = args[0];
+void runBuiltin(Command cmd) {
+  std::string command = cmd.args[0];
   if (command == "exit") {
     exit(0);
   }
   if (command == "echo") {
-    echo(args);
+    echo(cmd.args);
   }
   if (command == "type") {
-    if (args.size() < 2) {
+    if (cmd.args.size() < 2) {
       std::cout << "type: missing argument\n";
       return;
     }   
-    checkType(args[1], VALID_COMMANDS);
+    checkType(cmd.args[1], VALID_COMMANDS);
   }
   if (command == "pwd") {
     std::cout << fs::current_path().c_str() << std::endl;
   }
   if (command == "cd") {
-    changeDirectory(args[1]);
+    changeDirectory(cmd.args[1]);
   }
+}
+
+void runBuiltinWithRedirect(const Command& cmd) {
+    int saved_stdout = dup(STDOUT_FILENO);
+
+    int fd = open(cmd.file.c_str(),
+                  O_WRONLY | O_CREAT | O_TRUNC,
+                  0644);
+
+    if (fd < 0) {
+        perror("open");
+        return;
+    }
+
+    dup2(fd, STDOUT_FILENO);
+    close(fd);
+
+    runBuiltin(cmd);
+
+    // restore stdout
+    dup2(saved_stdout, STDOUT_FILENO);
+    close(saved_stdout);
 }
 
 void external(const std::vector<std::string>& args) {
@@ -217,15 +283,20 @@ int main() {
     std::string line;
     std::getline(std::cin, line);
 
-    auto args = parseArgs(line);
-    if (args.empty()) continue;
+    Command cmd  = parseArgs(line);
+    
+    if (cmd.args.empty()) continue;
 
-    std::string command = args[0];
+    std::string command = cmd.args[0];
     
     if (!builtin(command)) {
-      checkCustomCommand(args);
+      checkCustomCommand(cmd);
     } else {
-      runBuiltin(args);
+      if (cmd.redirectOutput) {
+        runBuiltinWithRedirect(cmd);
+      } else {
+        runBuiltin(cmd);
+      }
     }
   }
 }

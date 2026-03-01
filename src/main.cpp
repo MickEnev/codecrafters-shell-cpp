@@ -184,8 +184,10 @@ void checkCustomCommand(Command cmd) {
                           O_WRONLY | O_CREAT | O_TRUNC,
                           0644);
 
-            dup2(fd, STDERR_FILENO);
-            close(fd);
+            if (fd >= 0) {
+                dup2(fd, STDERR_FILENO);
+                close(fd);
+            }
           }
           execv(file.c_str(), argv.data());
           exit(1);

@@ -84,7 +84,7 @@ Command parseArgs(const std::string& line) {
           }
           if (c == '>' && state == ParseState::NORMAL) {
             if (current == "2") {
-                  cmd.redirectError = true;
+                  fileError = true;  
                 } else {
                   fileOutput = true;
                 }
@@ -272,6 +272,8 @@ void runBuiltin(Command cmd) {
 
 void runBuiltinWithRedirect(const Command& cmd) {
     int saved_stdout = dup(STDOUT_FILENO);
+    int saved_stderr = dup(STDERR_FILENO);
+    int saved_stdout = dup(STDOUT_FILENO);
 
     int fd = open(cmd.file.c_str(),
                   O_WRONLY | O_CREAT | O_TRUNC,
@@ -287,9 +289,12 @@ void runBuiltinWithRedirect(const Command& cmd) {
 
     runBuiltin(cmd);
 
-    // restore stdout
+    // restore
     dup2(saved_stdout, STDOUT_FILENO);
+    dup2(saved_stderr, STDERR_FILENO);
+
     close(saved_stdout);
+    close(saved_stderr);
 }
 
 void external(const std::vector<std::string>& args) {
@@ -318,7 +323,7 @@ int main() {
     if (!builtin(command)) {
       checkCustomCommand(cmd);
     } else {
-      if (cmd.redirectOutput) {
+      if (cmd.redirectOutput || cmd.redirectError) {
         runBuiltinWithRedirect(cmd);
       } else {
         runBuiltin(cmd);

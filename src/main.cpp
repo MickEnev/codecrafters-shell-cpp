@@ -280,7 +280,6 @@ void runBuiltinWithRedirect(const Command& cmd) {
 
     if (fd < 0) {
         perror("open");
-        return;
     }
 
     dup2(fd, STDOUT_FILENO);

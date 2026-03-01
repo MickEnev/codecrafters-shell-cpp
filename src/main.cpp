@@ -17,7 +17,9 @@ std::vector<std::string> VALID_COMMANDS = {"exit", "echo", "type", "pwd", "cd"};
 struct Command {
   std::vector<std::string> args;
   bool redirectOutput = false;
+  bool redirectError = false;
   std::string file;
+  std::string errorFile;
 };
 
 std::vector<std::string> getPathDirs() {
@@ -80,14 +82,20 @@ Command parseArgs(const std::string& line) {
               continue;
           }
           if (c == '>' && state == ParseState::NORMAL) {
+            if (current == "2") {
+                  cmd.redirectError = true;
+                }
+            if (current == "1" || current.empty()) {
+              fileOutput = true;
+            }
             if (!current.empty()) {
-                if (current != "1") {
+                if (current != "1" && current != "2") {
                   cmd.args.push_back(current);  
                 }
                 current.clear();
             }
-
-            fileOutput = true;
+            
+            
             continue;
         }
           current.push_back(c);
@@ -167,6 +175,19 @@ void checkCustomCommand(Command cmd) {
 
               dup2(fd, STDOUT_FILENO);
               close(fd);
+          }
+          if (cmd.redirectError) {
+            int fd = open(cmd.errorFile.c_str(),
+                          O_WRONLY | O_CREAT | O_TRUNC,
+                          0644);
+
+            if (fd < 0) {
+                perror("open");
+                exit(1);
+            }
+
+            dup2(fd, STDERR_FILENO);
+            close(fd);
           }
           execv(file.c_str(), argv.data());
           exit(1);

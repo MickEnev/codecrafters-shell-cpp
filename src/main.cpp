@@ -79,7 +79,7 @@ Command parseArgs(const std::string& line) {
               }
               continue;
           }
-          if (c == '>' && state == ParseState::NORMAL) {
+          if ((c == '>' || c == '1>') && state == ParseState::NORMAL) {
             if (!current.empty()) {
                 cmd.args.push_back(current);
                 current.clear();

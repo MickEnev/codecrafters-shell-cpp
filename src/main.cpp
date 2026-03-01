@@ -81,12 +81,9 @@ Command parseArgs(const std::string& line) {
           }
           if (c == '>' && state == ParseState::NORMAL) {
             if (!current.empty()) {
-                if (current[current.size() - 1] == '1') {
-                  std::cout << current << std::endl;
-                  current = current.substr(0, current.size() - 2);
-                  std::cout << current << std::endl;
+                if (current != "1") {
+                  cmd.args.push_back(current);  
                 }
-                cmd.args.push_back(current);
                 current.clear();
             }
 

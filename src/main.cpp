@@ -50,6 +50,7 @@ Command parseArgs(const std::string& line) {
 
   Command cmd;
   bool fileOutput = false;
+  bool fileError = false;
 
   std::vector<std::string> args;
   std::string current;
@@ -84,17 +85,16 @@ Command parseArgs(const std::string& line) {
           if (c == '>' && state == ParseState::NORMAL) {
             if (current == "2") {
                   cmd.redirectError = true;
+                } else {
+                  fileOutput = true;
                 }
-            if (current == "1" || current.empty()) {
-              fileOutput = true;
-            }
+
             if (!current.empty()) {
                 if (current != "1" && current != "2") {
                   cmd.args.push_back(current);  
                 }
                 current.clear();
             }
-            
             
             continue;
         }
@@ -128,6 +128,9 @@ Command parseArgs(const std::string& line) {
     if (fileOutput) {
       cmd.file = current;
       cmd.redirectOutput = true;
+    } else if (fileError) {
+        cmd.errorFile = current;
+        cmd.redirectError = true;
     } else {
       cmd.args.push_back(current);
     }

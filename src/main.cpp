@@ -365,8 +365,6 @@ int main() {
   fs::path curDir = fs::current_path();
 
   while (true) {
-    std::cout << "$ ";
-  
     char* input = readline("$ ");
 
     if (!input) break;

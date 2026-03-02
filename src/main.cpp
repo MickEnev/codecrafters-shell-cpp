@@ -368,7 +368,11 @@ char* command_generator(const char* text, int state) {
             return strdup(name.c_str());
         }
     }
-    index = 0;
+    if (!state) {
+      index = 0;
+      len = strlen(text);
+    }
+    
     std::vector<std::string> path = getPathDirs();
     while (index < path.size()) {
       static const std::string& name = path[index++];

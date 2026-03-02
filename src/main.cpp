@@ -353,8 +353,28 @@ void runBuiltinWithRedirect(const Command& cmd) {
     close(saved_stderr);
 }
 
-void external(const std::vector<std::string>& args) {
+char* command_generator(const char* text, int state) {
+    static size_t index;
+    static size_t len;
 
+    if (!state) {
+        index = 0;
+        len = strlen(text);
+    }
+
+    while (index < VALID_COMMANDS.size()) {
+        const std::string& name = VALID_COMMANDS[index++];
+        if (name.compare(0, len, text) == 0) {
+            return strdup(name.c_str());
+        }
+    }
+
+    return nullptr;
+}
+
+char** command_completion(const char* text, int start, int end) {
+    rl_attempted_completion_over = 1;
+    return rl_completion_matches(text, command_generator);
 }
 
 int main() {
@@ -363,6 +383,7 @@ int main() {
   std::cerr << std::unitbuf;
 
   fs::path curDir = fs::current_path();
+  rl_attempted_completion_function = command_completion;
 
   while (true) {
     char* input = readline("$ ");

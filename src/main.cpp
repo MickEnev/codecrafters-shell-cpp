@@ -87,7 +87,7 @@ Command parseArgs(const std::string& line) {
           }
           if (c == '>' && state == ParseState::NORMAL) {
             bool append = false;
-            
+
             if (i + 1 < line.size() && line[i + 1] == '>') {
               append = true;
               i++;
@@ -309,7 +309,7 @@ void runBuiltinWithRedirect(const Command& cmd) {
                       0644);
       } else {
         fd = open(cmd.file.c_str(),
-                      O_WRONLY | O_APPEND | O_TRUNC,
+                      O_WRONLY | O_CREAT | O_APPEND,
                       0644);
       }
 
@@ -330,7 +330,7 @@ void runBuiltinWithRedirect(const Command& cmd) {
                       0644);
       } else {
         fd = open(cmd.errorFile.c_str(),
-                      O_WRONLY | O_APPEND | O_TRUNC,
+                      O_WRONLY | O_CREAT | O_APPEND,
                       0644);
       }
 

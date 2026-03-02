@@ -369,12 +369,11 @@ char* command_generator(const char* text, int state) {
         }
     }
     index = 0;
-    std::vector<std::string> path = getPathDirs();
+    static std::vector<std::string> path = getPathDirs();
     while (index < path.size()) {
-      const std::string& name = path[index++];
+      static const std::string& name = path[index++];
       for (const auto& entry : fs::directory_iterator(name)) {
-        std::string fileName = entry.path().string();
-        std::cout << fileName << std::endl;
+        static std::string fileName = entry.path().filename();
         if (fileName.compare(0, len, text) == 0) {
             return strdup(fileName.c_str());
         }

@@ -369,7 +369,7 @@ char* command_generator(const char* text, int state) {
         }
     }
     index = 0;
-    static std::vector<std::string> path = getPathDirs();
+    std::vector<std::string> path = getPathDirs();
     while (index < path.size()) {
       static const std::string& name = path[index++];
       for (const auto& entry : fs::directory_iterator(name)) {

@@ -367,7 +367,6 @@ int main() {
   while (true) {
     std::cout << "$ ";
   
-    std::string line;
     char* input = readline("$ ");
 
     if (!input) break;

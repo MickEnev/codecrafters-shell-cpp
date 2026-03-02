@@ -9,6 +9,9 @@
 #include <sys/wait.h>
 #include <fstream>
 #include <fcntl.h>
+#include <ncurses.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 namespace fs = std::filesystem;
 
@@ -365,14 +368,19 @@ int main() {
     std::cout << "$ ";
   
     std::string line;
-    std::getline(std::cin, line);
+    char* input = readline("$ ");
+
+    if (!input) break;
+
+    std::string line = input;
+    free(input);
 
     Command cmd  = parseArgs(line);
     
     if (cmd.args.empty()) continue;
 
     std::string command = cmd.args[0];
-    
+
     if (!builtin(command)) {
       checkCustomCommand(cmd);
     } else {

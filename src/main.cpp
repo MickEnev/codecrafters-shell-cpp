@@ -373,7 +373,7 @@ char* command_generator(const char* text, int state) {
     while (index < path.size()) {
       static const std::string& name = path[index++];
       for (const auto& entry : fs::directory_iterator(name)) {
-        static std::string fileName = entry.path().filename();
+        std::string fileName = entry.path().filename();
         if (fileName.compare(0, len, text) == 0) {
             return strdup(fileName.c_str());
         }

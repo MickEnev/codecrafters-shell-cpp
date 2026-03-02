@@ -87,6 +87,7 @@ Command parseArgs(const std::string& line) {
           }
           if (c == '>' && state == ParseState::NORMAL) {
             bool append = false;
+            
             if (i + 1 < line.size() && line[i + 1] == '>') {
               append = true;
               i++;
@@ -97,6 +98,7 @@ Command parseArgs(const std::string& line) {
               } else {
                 fileOutput = true;
               }
+
             if (append) {
               overrideOutput = false;
             }
@@ -137,9 +139,7 @@ Command parseArgs(const std::string& line) {
       }
   }
   if (!current.empty()) {
-    if (!overrideOutput) {
-      cmd.overwriteOutput = false;
-    }  
+      cmd.overwriteOutput = overrideOutput;
     if (fileOutput) {
       cmd.file = current;
       cmd.redirectOutput = true;

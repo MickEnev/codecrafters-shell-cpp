@@ -57,7 +57,8 @@ Command parseArgs(const std::string& line) {
   std::vector<std::string> args;
   std::string current;
 
-  for (char c : line) {
+  for (size_t i = 0; i < line.size(); i++) {
+    char c = line[i];
       if (state == ParseState::NORMAL) {
           if (c == '\'') {
               state = ParseState::IN_SINGLE_QUOTE;
@@ -85,12 +86,18 @@ Command parseArgs(const std::string& line) {
               continue;
           }
           if (c == '>' && state == ParseState::NORMAL) {
+            bool append = false;
+            if (i + 1 < line.size() && line[i + 1] == '>') {
+              append = true;
+              i++;
+            }
+
             if (current == "2") {
                 fileError = true;  
               } else {
                 fileOutput = true;
               }
-            if (current == ">" || current == "1>" || current == "2>") {
+            if (append) {
               overrideOutput = false;
             }
               

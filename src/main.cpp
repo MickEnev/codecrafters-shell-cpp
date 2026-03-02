@@ -90,13 +90,12 @@ Command parseArgs(const std::string& line) {
               } else {
                 fileOutput = true;
               }
-              if (current == ">" || current == "1>" || current == "2>") {
-                std::cout << "hello" << std::endl;
-                overrideOutput = false;
-              }
+            if (current == ">" || current == "1>" || current == "2>") {
+              overrideOutput = false;
+            }
               
             if (!current.empty()) {
-                if (current != "1" && current != "2") {
+                if (current != "1" && current != "2" && current != "1>") {
                   cmd.args.push_back(current);  
                 }
                 current.clear();

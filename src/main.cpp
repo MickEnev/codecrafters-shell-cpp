@@ -17,6 +17,7 @@ std::vector<std::string> VALID_COMMANDS = {"exit", "echo", "type", "pwd", "cd"};
 struct Command {
   std::vector<std::string> args;
   bool redirectOutput = false;
+  bool overwriteOutput = true;
   bool redirectError = false;
   std::string file;
   std::string errorFile;
@@ -51,6 +52,7 @@ Command parseArgs(const std::string& line) {
   Command cmd;
   bool fileOutput = false;
   bool fileError = false;
+  bool overrideOutput = true;
 
   std::vector<std::string> args;
   std::string current;
@@ -84,10 +86,13 @@ Command parseArgs(const std::string& line) {
           }
           if (c == '>' && state == ParseState::NORMAL) {
             if (current == "2") {
-                  fileError = true;  
-                } else {
-                  fileOutput = true;
-                }
+                fileError = true;  
+            } else if (current == ">") {
+              overrideOutput = false;
+            }
+            else {
+              fileOutput = true;
+            }
 
             if (!current.empty()) {
                 if (current != "1" && current != "2") {
@@ -125,6 +130,9 @@ Command parseArgs(const std::string& line) {
       }
   }
   if (!current.empty()) {
+    if (!overrideOutput) {
+      cmd.overwriteOutput = false;
+    }  
     if (fileOutput) {
       cmd.file = current;
       cmd.redirectOutput = true;
@@ -167,9 +175,15 @@ void checkCustomCommand(Command cmd) {
         pid_t pid = fork();
         if (pid == 0) {
           if (cmd.redirectOutput) {
-              int fd = open(cmd.file.c_str(),
+            int fd;
+            if (cmd.overwriteOutput) {
+              fd = open(cmd.file.c_str(),
                             O_WRONLY | O_CREAT | O_TRUNC,
                             0644);
+            } else {
+              fd = open(cmd.file.c_str(),
+                            O_WRONLY | O_APPEND | O_TRUNC);
+            }
 
               if (fd < 0) {
                   perror("open");
@@ -180,9 +194,16 @@ void checkCustomCommand(Command cmd) {
               close(fd);
           }
           if (cmd.redirectError) {
-            int fd = open(cmd.errorFile.c_str(),
-                          O_WRONLY | O_CREAT | O_TRUNC,
-                          0644);
+            int fd;
+            if (cmd.overwriteOutput) {
+              fd = open(cmd.errorFile.c_str(),
+                            O_WRONLY | O_CREAT | O_TRUNC,
+                            0644);
+            } else {
+              fd = open(cmd.errorFile.c_str(),
+                            O_WRONLY | O_APPEND | O_TRUNC,
+                            0644);
+            }
 
             if (fd >= 0) {
                 dup2(fd, STDERR_FILENO);
@@ -273,9 +294,16 @@ void runBuiltinWithRedirect(const Command& cmd) {
 
     // redirect stdout
     if (cmd.redirectOutput) {
-        int fd = open(cmd.file.c_str(),
+      int fd;
+      if (cmd.overwriteOutput) {
+        fd = open(cmd.file.c_str(),
                       O_WRONLY | O_CREAT | O_TRUNC,
                       0644);
+      } else {
+        fd = open(cmd.file.c_str(),
+                      O_WRONLY | O_APPEND | O_TRUNC,
+                      0644);
+      }
 
         if (fd < 0) {
             perror("open");
@@ -287,9 +315,16 @@ void runBuiltinWithRedirect(const Command& cmd) {
 
     // redirect stderr
     if (cmd.redirectError) {
-        int fd = open(cmd.errorFile.c_str(),
+      int fd;
+      if (cmd.overwriteOutput) {
+        fd = open(cmd.errorFile.c_str(),
                       O_WRONLY | O_CREAT | O_TRUNC,
                       0644);
+      } else {
+        fd = open(cmd.errorFile.c_str(),
+                      O_WRONLY | O_APPEND | O_TRUNC,
+                      0644);
+      }
 
         if (fd >= 0) {
             dup2(fd, STDERR_FILENO);

@@ -90,7 +90,6 @@ Command parseArgs(const std::string& line) {
               } else {
                 fileOutput = true;
               }
-              std::cout << current << std::endl;
               if (current == ">" || current == "1>" || current == "2>") {
                 overrideOutput = false;
               }

@@ -95,7 +95,7 @@ Command parseArgs(const std::string& line) {
             }
               
             if (!current.empty()) {
-                if (current != "1" && current != "2" && current != "1>") {
+                if (current != "1" && current != "2") {
                   cmd.args.push_back(current);  
                 }
                 current.clear();
@@ -182,7 +182,8 @@ void checkCustomCommand(Command cmd) {
                             0644);
             } else {
               fd = open(cmd.file.c_str(),
-                            O_WRONLY | O_APPEND | O_TRUNC);
+                            O_WRONLY | O_CREAT | O_APPEND,
+                            0644);
             }
 
               if (fd < 0) {
@@ -201,7 +202,7 @@ void checkCustomCommand(Command cmd) {
                             0644);
             } else {
               fd = open(cmd.errorFile.c_str(),
-                            O_WRONLY | O_APPEND | O_TRUNC,
+                            O_WRONLY | O_CREAT | O_APPEND,
                             0644);
             }
 

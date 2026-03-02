@@ -91,6 +91,7 @@ Command parseArgs(const std::string& line) {
                 fileOutput = true;
               }
               if (current == ">" || current == "1>" || current == "2>") {
+                std::cout "hello" << std::endl;
                 overrideOutput = false;
               }
               

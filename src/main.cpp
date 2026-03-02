@@ -87,13 +87,14 @@ Command parseArgs(const std::string& line) {
           if (c == '>' && state == ParseState::NORMAL) {
             if (current == "2") {
                 fileError = true;  
-            } else if (current == ">") {
-              overrideOutput = false;
-            }
-            else {
-              fileOutput = true;
-            }
+              } else {
+                fileOutput = true;
+              }
 
+              if (current == ">" || current == "1>" || current == "2>") {
+                overrideOutput = false;
+              }
+              
             if (!current.empty()) {
                 if (current != "1" && current != "2") {
                   cmd.args.push_back(current);  

@@ -385,8 +385,13 @@ char* command_generator(const char* text, int state) {
 
 char** command_completion(const char* text, int start, int end) {
     rl_attempted_completion_over = 1;
-    return rl_completion_matches(text, command_generator);
+    if (start == 0) {
+      return rl_completion_matches(text, command_generator);
+    } else {
+      return rl_completion_matches(text, rl_filename_completion_function);
+    }
 }
+
 
 int main() {
   // Flush after every std::cout / std:cerr

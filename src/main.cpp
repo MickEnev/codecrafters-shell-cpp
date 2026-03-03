@@ -357,33 +357,29 @@ char* command_generator(const char* text, int state) {
     static size_t index;
     static size_t len;
 
+    static std::vector<std::string> allCommands = VALID_COMMANDS;
+
     if (!state) {
         index = 0;
         len = strlen(text);
+        
+        std::vector<std::string> path = getPathDirs();
+        for (int index = 0; index < path.size(); index++) {
+          const std::string& name = path[index];
+          for (const auto& entry : fs::directory_iterator(name)) {
+            std::string fileName = entry.path().filename();
+            allCommands.push_back(fileName);
+          }
+        }
     }
 
-    while (index < VALID_COMMANDS.size()) {
-        const std::string& name = VALID_COMMANDS[index++];
+    while (index < allCommands.size()) {
+        const std::string& name = allCommands[index++];
         if (name.compare(0, len, text) == 0) {
             return strdup(name.c_str());
         }
     }
-    if (!state) {
-      index = 0;
-      len = strlen(text);
-    }
-    
-    std::vector<std::string> path = getPathDirs();
-    while (index < path.size()) {
-      static const std::string& name = path[index++];
-      for (const auto& entry : fs::directory_iterator(name)) {
-        std::string fileName = entry.path().filename();
-        if (fileName.compare(0, len, text) == 0) {
-            return strdup(fileName.c_str());
-        }
-      }
-    }
-
+  
     return nullptr;
 }
 

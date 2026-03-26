@@ -167,6 +167,11 @@ void echo(const std::vector<std::string>& args) {
 void checkCustomCommand(Command cmd) {
   bool found = false;
 
+  for (auto thing : cmd.args) {
+    std::cout << "PRINTING SHIT" << std::endl;
+    std::cout << thing << std::endl;
+  }
+
   // Convert args -> argv (execv format)
   std::vector<char*> argv;
   for (const auto& s : cmd.args) {
@@ -178,10 +183,6 @@ void checkCustomCommand(Command cmd) {
 
   // parse each directory 
   std::vector<std::string> parts = getPathDirs();
-
-  for (auto part : parts) {
-    std::cout << part << std::endl;
-  }
 
   for (const auto& p : parts) {
     std::string file = p + "/" + command;

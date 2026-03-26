@@ -75,6 +75,9 @@ Command parseArgs(const std::string& line) {
             state = ParseState::ESCAPE;
             continue; 
           }
+          if (c == '|') {
+            std::cout << current << std::endl;
+          }
           if (std::isspace(c)) {
               if (!current.empty()) {
                 if (fileOutput) {
@@ -427,3 +430,17 @@ int main() {
   }
 }
 
+
+
+// Thoughts for Pipelines: 
+// Somehow have to capture output and pass it as input to the next command
+// Step 1: Identify pipeline operator
+// Step 2: Store what would normally be standard output
+// Step 3: create a fork?
+// Step 4: execute? 
+
+// Create a pipe.
+// Execute fork().
+// In the child: overwrite standard input with the read end of the previous pipe, and standard output with the write end of the current pipe.
+// In the child: execute execve().
+// In the parent: close unneeded pipes and save read end of current pipe to be used in the next iteration.

@@ -76,7 +76,8 @@ Command parseArgs(const std::string& line) {
             continue; 
           }
           if (c == '|') {
-            for (auto ar : args) {
+            std::cout << "PRINTING SHIT" << std::endl;
+            for (auto ar : cmd.args) {
               std::cout << ar << std::endl;
             }
           }

@@ -76,7 +76,9 @@ Command parseArgs(const std::string& line) {
             continue; 
           }
           if (c == '|') {
-            std::cout << current << std::endl;
+            for (auto ar : args) {
+              std::cout << ar << std::endl;
+            }
           }
           if (std::isspace(c)) {
               if (!current.empty()) {

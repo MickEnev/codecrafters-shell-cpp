@@ -75,12 +75,6 @@ Command parseArgs(const std::string& line) {
             state = ParseState::ESCAPE;
             continue; 
           }
-          if (c == '|') {
-            std::cout << "PRINTING SHIT" << std::endl;
-            for (auto ar : cmd.args) {
-              std::cout << ar << std::endl;
-            }
-          }
           if (std::isspace(c)) {
               if (!current.empty()) {
                 if (fileOutput) {
@@ -184,6 +178,10 @@ void checkCustomCommand(Command cmd) {
 
   // parse each directory 
   std::vector<std::string> parts = getPathDirs();
+
+  for (auto part : parts) {
+    std::cout << part << std::endl;
+  }
 
   for (const auto& p : parts) {
     std::string file = p + "/" + command;
